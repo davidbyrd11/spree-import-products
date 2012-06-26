@@ -175,7 +175,7 @@ module Spree
       #First, set the primitive fields on the object (prices, etc.)
       options[:with].each do |field, value|
         variant.send("#{field}=", value) if variant.respond_to?("#{field}=")
-        applicable_option_type = Spree::OptionType.find(:first, :conditions => [
+        applicable_option_type = Spree::OptionType.find(:first, :conditions => [ #We need to set applicable_option_type to take into account size/color and the special naming scheme that we have
           "lower(presentation) = ? OR lower(name) = ?",
           field.to_s, field.to_s]
         )
