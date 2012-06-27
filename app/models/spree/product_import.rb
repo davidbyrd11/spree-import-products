@@ -154,7 +154,6 @@ module Spree
     # size/color options
     def create_variant_for(product, options = {:with => {}})
       return if options[:with].nil?
-
       # Just update variant if exists
       variant = Spree::Variant.find_by_sku(options[:with][:sku])
       raise SkuError, "SKU #{variant.sku} should belongs to #{product.inspect} but was #{variant.product.inspect}" if variant && variant.product != product
@@ -177,9 +176,11 @@ module Spree
         variant.send("#{field}=", value) if variant.respond_to?("#{field}=")
         applicable_option_type = Spree::OptionType.find(:first, :conditions => [ #We need to set applicable_option_type to take into account size/color and the special naming scheme that we have
           "lower(presentation) = ? OR lower(name) = ?",
-          field.to_s, field.to_s]
+          field.to_s.tr('_', ' '), field.to_s.tr('_', ' ')] #SIZES: make field optiontype name and then have a dropdown for the different sizes
+                                  #Colors: if field == color -> make field = "Product " + product.id + " Colors"
         )
         if applicable_option_type.is_a?(Spree::OptionType)
+          raise "got here"
           product.option_types << applicable_option_type unless product.option_types.include?(applicable_option_type)
           opt_value = applicable_option_type.option_values.where(["presentation = ? OR name = ?", value, value]).first
           opt_value = applicable_option_type.option_values.create(:presentation => value, :name => value) unless opt_value
