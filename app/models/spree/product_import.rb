@@ -158,7 +158,7 @@ module Spree
       variant = Spree::Variant.find_by_sku(options[:with][:sku])
       raise SkuError, "SKU #{variant.sku} should belongs to #{product.inspect} but was #{variant.product.inspect}" if variant && variant.product != product
       if !variant
-        variant = product.variants.new
+        variant = product.variants.new # TODO: Where does id come from?
         variant.id = options[:with][:id]
       else
         options[:with].delete(:id)
@@ -180,7 +180,6 @@ module Spree
                                   #Colors: if field == color -> make field = "Product " + product.id + " Colors"
         )
         if applicable_option_type.is_a?(Spree::OptionType)
-          raise "got here"
           product.option_types << applicable_option_type unless product.option_types.include?(applicable_option_type)
           opt_value = applicable_option_type.option_values.where(["presentation = ? OR name = ?", value, value]).first
           opt_value = applicable_option_type.option_values.create(:presentation => value, :name => value) unless opt_value
@@ -228,7 +227,7 @@ module Spree
         if product.respond_to?("#{field}=")
           product.send("#{field}=", value)
         elsif property = Spree::Property.where(["name = ?", field]).first
-          product.product_properties.build :value => value, :property => property
+          product.product_properties.build :value => value, :property => Spree::Property.where("name = ?", property).first
         end
       end
 
