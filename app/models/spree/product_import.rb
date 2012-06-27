@@ -226,7 +226,7 @@ module Spree
       params_hash.each do |field, value|
         if product.respond_to?("#{field}=")
           product.send("#{field}=", value)
-        elsif property = Spree::Property.where(["name = ?", field]).first
+        elsif property = Spree::Property.where(["lower(name) = ?", field.tr('_',' ')]).first
           product.product_properties.build :value => value, :property => Spree::Property.where("lower(name) = ?", property.tr('_', ' ')).first
         end
       end
