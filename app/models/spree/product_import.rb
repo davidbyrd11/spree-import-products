@@ -224,10 +224,11 @@ module Spree
       # What this does is only assigns values to products if the product accepts that field.
       params_hash[:price] ||= params_hash[:master_price]
       params_hash.each do |field, value|
-        if field != "label" && product.respond_to?("#{field}=") 
+        if field != "label" && product.respond_to?("#{field}=")
           product.send("#{field}=", value)
         elsif property = Spree::Property.where(["lower(name) = ?", field.tr('_',' ')]).first
-          product.product_properties.build :value => value, :property => property
+          raise property
+          product.product_properties.build :value => value, :property => Spree::Property.where("lower(name) = ?", property.tr('_', ' ')).first
         end
       end
 
