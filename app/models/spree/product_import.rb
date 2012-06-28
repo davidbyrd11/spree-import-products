@@ -219,11 +219,14 @@ module Spree
     def create_product_using(params_hash)
       product = Spree::Product.new
 
+
+      inventory_units_on_hand = 0
       #add the correct size option type(s)
       Spree::ProductImport.settings[:size_types].each do |size_type|
         Spree::ProductImport.settings[size_type].each do |size|
           product_ot = Spree::ProductOptionType.create(product_id: product.id, option_type_id: Spree::OptionType.where("name = ?", size_type.to_s).first.id)
-          product.options << product_ot if Spree::ProductImport.settings[size_type].any? do |size| 
+          product.options << product_ot if Spree::ProductImport.settings[size_type].any? do |size|
+            inventory_units_on_hand += params_hash[size] 
             return true if params_hash[size] > 0 and product.options.include?(product_ot)
           end
         end    
@@ -242,11 +245,10 @@ module Spree
 
         #add filter options to each color option value
         ov.filter_options << color_filter_options.fetch(index)
+
+        #create each variant and assign the correct size and color option values
+        ov.variants << Spree::Variant.create(sku: params_hash[:sku], price: params_hash[:master_price], weight: params_hash[:weight], height: params_hash[:height], width: params_hash[:width], depth: params_hash[:depth], product_id: product.id, count_on_hand: inventory_units_on_hand, sale_price: params_hash[:sale_price], retail_price: params_hash[:retail_price])
       end
-
-      #create each variant and assign the correct size and color option values
-      Spree::Variant.create(sku: params_hash[:sku], price: params_hash[:master_price], weight: params_hash[:weight], height: params_hash[:height], width: params_hash[:width], depth: params_hash[:depth], product_id: product.id, count_on_hand: =begin Loop through the values of all of the sizes =end, sale_price: params_hash[:sale_price], retail_price: params_hash[:retail_price])
-
 
 
       #The product is inclined to complain if we just dump all params
