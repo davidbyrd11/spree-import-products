@@ -219,19 +219,17 @@ module Spree
     def create_product_using(params_hash)
       product = Spree::Product.new
 
-
-      inventory_units_on_hand = 0
-      #add the correct size option type(s)
-      Spree::ProductImport.settings[:size_types].each do |size_type|
-        Spree::ProductImport.settings[size_type].each do |size|
-          product_ot = Spree::ProductOptionType.create(product_id: product.id, option_type_id: Spree::OptionType.where("name = ?", size_type.to_s).first.id)
-          product.options << product_ot if Spree::ProductImport.settings[size_type].any? do |size|
-            inventory_units_on_hand += params_hash[size] 
-            return true if params_hash[size] > 0 and product.options.include?(product_ot)
-          end
-        end    
-      end
-      raise inventory_units_on_hand
+      # inventory_units_on_hand = 0
+      # #add the correct size option type(s)
+      # Spree::ProductImport.settings[:size_types].each do |size_type|
+      #   Spree::ProductImport.settings[size_type].each do |size|
+      #     product_ot = Spree::ProductOptionType.create(product_id: product.id, option_type_id: Spree::OptionType.where("name = ?", size_type.to_s).first.id)
+      #     product.options << product_ot if Spree::ProductImport.settings[size_type].any? do |size|
+      #       inventory_units_on_hand += params_hash[size] 
+      #       true if !params_hash[size].nil? and params_hash[size] > 0 and product.options.include?(product_ot)
+      #     end
+      #   end    
+      # end
       
       # #create a new option type for the product's colors
       # color_ot = Spree::OptionType.create(name: "Product " + product.id.to_s + " Colors", presentation: "Color")
