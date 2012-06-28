@@ -227,7 +227,6 @@ module Spree
         if field != "label" && product.respond_to?("#{field}=")
           product.send("#{field}=", value)
         elsif property = Spree::Property.where(["lower(name) = ?", field.tr('_',' ')]).first
-          raise property
           product.product_properties.build :value => value, :property => Spree::Property.where("lower(name) = ?", property.tr('_', ' ')).first
         end
       end
