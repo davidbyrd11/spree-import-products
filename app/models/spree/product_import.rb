@@ -231,6 +231,7 @@ module Spree
           end
         end    
       end
+      raise inventory_units_on_hand
       
       # #create a new option type for the product's colors
       # color_ot = Spree::OptionType.create(name: "Product " + product.id.to_s + " Colors", presentation: "Color")
