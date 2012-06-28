@@ -219,12 +219,42 @@ module Spree
     def create_product_using(params_hash)
       product = Spree::Product.new
 
+      #add the correct size option type(s)
+      Spree::ProductImport.settings[:size_types].each do |size_type|
+        Spree::ProductImport.settings[size_type].each do |size|
+          product_ot = Spree::ProductOptionType.create(product_id: product.id, option_type_id: Spree::OptionType.where("name = ?", size_type.to_s).first.id)
+          product.options << product_ot if Spree::ProductImport.settings[size_type].any? do |size| 
+            return true if params_hash[size] > 0 and product.options.include?(product_ot)
+          end
+        end    
+      end
+      
+      #create a new option type for the product's colors
+      color_ot = Spree::OptionType.create(name: "Product " + product.id.to_s + " Colors", presentation: "Color")
+
+      #associate the option type with the product
+      product.options << Spree::ProductOptionType.create(product_id: product.id, option_type_id: color_ot.id)
+
+      #create the option values for each color
+      color_filter_options = params_hash[:filter_options].split('|')
+      params_hash[:colors].split('|').each_with_index do |color|
+        ov = Spree::OptionValue.create(name: color, presentation: color, option_type_id: color_ot.id)
+
+        #add filter options to each color option value
+        ov.filter_options << color_filter_options.fetch(index)
+      end
+
+      #create each variant and assign the correct size and color option values
+      Spree::Variant.create(sku: params_hash[:sku], price: params_hash[:master_price], weight: params_hash[:weight], height: params_hash[:height], width: params_hash[:width], depth: params_hash[:depth], product_id: product.id, count_on_hand: =begin Loop through the values of all of the sizes =end, sale_price: params_hash[:sale_price], retail_price: params_hash[:retail_price])
+
+
+
       #The product is inclined to complain if we just dump all params
       # into the product (including images and taxonomies).
       # What this does is only assigns values to products if the product accepts that field.
       params_hash[:price] ||= params_hash[:master_price]
       params_hash.each do |field, value|
-        if field != "label" && product.respond_to?("#{field}=")
+        if field != "label" && product.respond_to?("#{field}=") #we excluded label becasue product.label is not what we're looking for
           product.send("#{field}=", value)
         elsif property = Spree::Property.where(["lower(name) = ?", field.tr('_',' ')]).first
           product.product_properties.build :value => value, :property => Spree::Property.where("lower(name) = ?", property.tr('_', ' ')).first
