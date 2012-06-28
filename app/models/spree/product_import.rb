@@ -232,23 +232,23 @@ module Spree
         end    
       end
       
-      #create a new option type for the product's colors
-      color_ot = Spree::OptionType.create(name: "Product " + product.id.to_s + " Colors", presentation: "Color")
+      # #create a new option type for the product's colors
+      # color_ot = Spree::OptionType.create(name: "Product " + product.id.to_s + " Colors", presentation: "Color")
 
-      #associate the option type with the product
-      product.options << Spree::ProductOptionType.create(product_id: product.id, option_type_id: color_ot.id)
+      # #associate the option type with the product
+      # product.options << Spree::ProductOptionType.create(product_id: product.id, option_type_id: color_ot.id)
 
-      #create the option values for each color
-      color_filter_options = params_hash[:filter_options].split('|')
-      params_hash[:colors].split('|').each_with_index do |color|
-        ov = Spree::OptionValue.create(name: color, presentation: color, option_type_id: color_ot.id)
+      # #create the option values for each color
+      # color_filter_options = params_hash[:filter_options].split('|')
+      # params_hash[:colors].split('|').each_with_index do |color|
+      #   ov = Spree::OptionValue.create(name: color, presentation: color, option_type_id: color_ot.id)
 
-        #add filter options to each color option value
-        ov.filter_options << color_filter_options.fetch(index)
+      #   #add filter options to each color option value
+      #   ov.filter_options << color_filter_options.fetch(index)
 
-        #create each variant and assign the correct size and color option values
-        ov.variants << Spree::Variant.create(sku: params_hash[:sku], price: params_hash[:master_price], weight: params_hash[:weight], height: params_hash[:height], width: params_hash[:width], depth: params_hash[:depth], product_id: product.id, count_on_hand: inventory_units_on_hand, sale_price: params_hash[:sale_price], retail_price: params_hash[:retail_price])
-      end
+      #   #create each variant and assign the correct size and color option values
+      #   ov.variants << Spree::Variant.create(sku: params_hash[:sku], price: params_hash[:master_price], weight: params_hash[:weight], height: params_hash[:height], width: params_hash[:width], depth: params_hash[:depth], product_id: product.id, count_on_hand: inventory_units_on_hand, sale_price: params_hash[:sale_price], retail_price: params_hash[:retail_price])
+      # end
 
 
       #The product is inclined to complain if we just dump all params
